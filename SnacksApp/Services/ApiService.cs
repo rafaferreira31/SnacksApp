@@ -133,6 +133,32 @@ namespace SnacksApp.Services
             }
         }
 
+        public async Task<ApiResponse<bool>> UploadImagemUsuario(byte[] imageArray)
+        {
+            try
+            {
+                var content = new MultipartFormDataContent();
+                content.Add(new ByteArrayContent(imageArray), "imagem", "image.jpg");
+                var response = await PostRequest("api/usuarios/uploadfoto", content);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    string errorMessage = response.StatusCode == HttpStatusCode.Unauthorized
+                      ? "Unauthorized"
+                      : $"Erro ao enviar requisição HTTP: {response.StatusCode}";
+
+                    _logger.LogError($"Erro ao enviar requisição HTTP: {response.StatusCode}");
+                    return new ApiResponse<bool> { ErrorMessage = errorMessage };
+                }
+                return new ApiResponse<bool> { Data = true };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Erro ao fazer upload da imagem do usuário: {ex.Message}");
+                return new ApiResponse<bool> { ErrorMessage = ex.Message };
+            }
+        }
+
         private async Task<HttpResponseMessage> PostRequest(string uri, HttpContent content)
         {
             var enderecoUrl = _baseUrl + uri;
@@ -159,6 +185,28 @@ namespace SnacksApp.Services
             string endpoint = $"api/Produtos?tipoProduto={tipoProduto}&categoriaId={categoriaId}";
             return await GetAsync<List<Produto>>(endpoint);
         }
+
+        public async Task<(ImagemPerfil? ImagemPerfil, string? ErrorMessage)> GetImagemPerfilUsuario()
+        {
+            string endpoint = "api/usuarios/imagemperfil";
+            return await GetAsync<ImagemPerfil>(endpoint);
+        }
+
+        public async Task<(List<PedidoPorUsuario>?, string? ErrorMessage)> GetPedidosPorUsuario(int usuarioId)
+        {
+
+            string endpoint = $"api/pedidos/PedidosPorUsuario/{usuarioId}";
+
+            return await GetAsync<List<PedidoPorUsuario>>(endpoint);
+        }
+
+        public async Task<(List<PedidoDetalhe>?, string? ErrorMessage)> GetPedidoDetalhes(int pedidoId)
+        {
+            string endpoint = $"api/pedidos/DetalhesPedido/{pedidoId}";
+
+            return await GetAsync<List<PedidoDetalhe>>(endpoint);
+        }
+
 
         private async Task<(T? Data, string? ErrorMessage)> GetAsync<T>(string endpoint)
         {

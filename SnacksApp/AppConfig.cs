@@ -10,5 +10,7 @@ namespace SnacksApp
     {
         public static readonly string BaseUrl = "https://nmbd2wm8-7066.uks1.devtunnels.ms/";
         public static readonly string tituloHomePage = "Lanches Mac";
+
+        public static readonly string PerfilImagemPadrao = "Resources/Images/profile.png";
     }
 }
