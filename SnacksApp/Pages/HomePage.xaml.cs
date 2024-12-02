@@ -9,6 +9,7 @@ public partial class HomePage : ContentPage
     private readonly ApiService _apiService;
     private readonly IValidator _validator;
     private bool _loginPageDisplayed = false;
+    private bool _isDataLoaded = false;
 
     public HomePage(ApiService apiService, IValidator validator)
     {
@@ -19,13 +20,27 @@ public partial class HomePage : ContentPage
         Title = AppConfig.tituloHomePage;
     }
 
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await GetListaCategorias();
-        await GetMaisVendidos();
-        await GetPopulares();
+        if (!_isDataLoaded)
+        {
+            await LoadDataAsync();
+            _isDataLoaded = true;
+        }
     }
+
+
+    private async Task LoadDataAsync()
+    {
+        var categoriasTask = GetListaCategorias();
+        var maisVendidosTask = GetMaisVendidos();
+        var popularesTask = GetPopulares();
+
+        await Task.WhenAll(categoriasTask, maisVendidosTask, popularesTask);
+    }
+
 
     private async Task<IEnumerable<Categoria>> GetListaCategorias()
     {
@@ -132,4 +147,36 @@ public partial class HomePage : ContentPage
         ((CollectionView)sender).SelectedItem = null;
     }
 
+
+    private void CvMaisVendidos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is CollectionView collectionView)
+        {
+            NavigateToProdutoDetalhesPage(collectionView, e);
+        }
+    }
+
+    private void CvPopulares_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is CollectionView collectionView)
+        {
+            NavigateToProdutoDetalhesPage(collectionView, e);
+        }
+
+    }
+
+    private void NavigateToProdutoDetalhesPage(CollectionView collectionView, SelectionChangedEventArgs e)
+    {
+        var currentSelection = e.CurrentSelection.FirstOrDefault() as Produto;
+
+        if (currentSelection == null)
+            return;
+
+        Navigation.PushAsync(new ProdutoDetalhesPage(
+                                 currentSelection.Id, currentSelection.Nome!, _apiService, _validator
+        ));
+
+        collectionView.SelectedItem = null;
+
+    }
 }
