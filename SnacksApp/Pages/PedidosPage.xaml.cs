@@ -26,6 +26,9 @@ public partial class PedidosPage : ContentPage
     {
         try
         {
+            loadPedidosIndicator.IsVisible = true;
+            loadPedidosIndicator.IsRunning = true;
+
             var (pedidos, errorMessage) = await _apiService.GetPedidosPorUsuario(Preferences.Get("usuarioid", 0));
 
             if (errorMessage == "Unauthorized" && !_loginPageDisplayed)
@@ -51,6 +54,11 @@ public partial class PedidosPage : ContentPage
         catch (Exception)
         {
             await DisplayAlert("Erro", "Ocorreu um erro ao obter os pedidos. Tente novamente mais tarde.", "OK");
+        }
+        finally
+        {
+            loadPedidosIndicator.IsVisible = false;
+            loadPedidosIndicator.IsRunning = false;
         }
     }
 

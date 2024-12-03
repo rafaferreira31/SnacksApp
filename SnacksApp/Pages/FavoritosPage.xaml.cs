@@ -14,10 +14,11 @@ public partial class FavoritosPage : ContentPage
 
     {
         InitializeComponent();
-        _favoritosService = new FavoritosService();
+        _favoritosService = ServiceFactory.CreateFavoritosService();
         _apiService = apiService;
         _validator = validator;
     }
+
 
     protected override async void OnAppearing()
     {

@@ -96,7 +96,7 @@ namespace SnacksApp.Services
                 Preferences.Set("accesstoken", result!.AccessToken);
                 Preferences.Set("usuarioid", (int)result.UsuarioId!);
                 Preferences.Set("usuarionome", result.UsuarioNome);
-
+            
                 return new ApiResponse<bool> { Data = true };
             }
             catch (Exception ex)
